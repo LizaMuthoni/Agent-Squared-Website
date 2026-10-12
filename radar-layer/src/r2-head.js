@@ -5,6 +5,8 @@
    then question, then phrasing. Data: the study's own 148 session records. */
 (function(){
   var cx=200,cy=200,R=165,T=6,tip,brand="A";
+  /* desktop pinned layout (matches the page's own breakpoint); below it sections stack */
+  var PINQ='(min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference)';function pinned(){return matchMedia(PINQ).matches;}
   var f1=function(n){return Math.round(n*10)/10};
   var P=function(r,deg){var a=deg*Math.PI/180;return[cx+r*Math.cos(a),cy+r*Math.sin(a)]};
   var Q=function(r,deg){var a=deg*Math.PI/180;return[r*Math.cos(a),r*Math.sin(a)]};

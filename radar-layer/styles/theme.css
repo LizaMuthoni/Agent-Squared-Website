@@ -1,0 +1,8 @@
+:root,:host{--font-grotesk:"Inter";--font-martian:"Inter";--font-sans:"Inter",ui-sans-serif,system-ui,sans-serif;--font-mono:"Inter",ui-sans-serif,system-ui,sans-serif}
+body,input,button,textarea{font-family:"Inter",ui-sans-serif,system-ui,sans-serif!important}
+.font-mono{font-variant-numeric:tabular-nums}
+h1,h2,h3,[class*="_title"],[class*="text-[34px]"],[class*="text-[30px]"]{font-family:"Poppins",ui-sans-serif,system-ui,sans-serif!important;color:#4A3122}
+.text-hull[class*="text-[34px]"],.text-hull[class*="text-[30px]"],h2.text-hull{color:#F8F9F4!important}
+a.bg-bone,button.bg-bone,a.bg-bone.text-hull,[class*="_primary"]{background:#0E4A2F!important;color:#fff!important}
+a.bg-bone:hover,button.bg-bone:hover,[class*="_primary"]:hover{background:#0a3622!important}
+a.bg-hull.text-paper{background:#fff!important;color:#0a3622!important}

@@ -1,6 +1,6 @@
-# georadar marketing site (GEO Radar)
+# Agent Squared marketing site
 
-The approved design of the georadar landing page, with the redesigned radars, colours and type, plus everything a developer needs to rebuild it properly.
+The approved design of the Agent Squared landing page, with the redesigned radars, colours and type, plus everything a developer needs to rebuild it properly.
 
 Live preview (private, owner can share): https://claude.ai/artifact/LHFcu9KYE7m5qSKpdwWF6d
 
@@ -34,6 +34,9 @@ After editing anything in `radar-layer/`:
 ```bash
 python3 tools/build.py
 ```
+
+The build applies Agent Squared branding to the page, React metadata payload, and client
+JavaScript bundles so the header keeps the same name after React loads.
 
 ## 3. Important for the developer
 

@@ -26,4 +26,4 @@ f:"$Sreact.suspense"
 13:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#F1F5EC"}]]
 18:I[27201,["$2"],"IconMark"]
 10:null
-16:[["$","title","0",{"children":"georadar"}],["$","meta","1",{"name":"description","content":"georadar asks coding agents the questions your buyers ask, records which vendor each picks first and every page it read, then shows what to change."}],["$","link","2",{"rel":"icon","href":"./icon.svg?icon.3ltzlfyyr21y0.svg","sizes":"any","type":"image/svg+xml"}],["$","$L18","3",{}]]
+16:[["$","title","0",{"children":"Agent Squared"}],["$","meta","1",{"name":"description","content":"Agent Squared asks coding agents the questions your buyers ask, records which vendor each picks first and every page it read, then shows what to change."}],["$","link","2",{"rel":"icon","href":"./icon.svg?icon.3ltzlfyyr21y0.svg","sizes":"any","type":"image/svg+xml"}],["$","$L18","3",{}]]

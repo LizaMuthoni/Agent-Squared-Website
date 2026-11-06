@@ -258,4 +258,29 @@ section:has(.ss-stage),.ss-stage{background-color:#E4ECDA!important}
 .grv-method .munit{font:500 11px Inter,sans-serif;fill:#E3EBD8;text-anchor:middle}
 .grv-tip{position:fixed;z-index:80;pointer-events:none;background:#2A2620;color:#fff;border-radius:8px;padding:8px 12px;font:13px/1.4 Inter,system-ui,sans-serif;max-width:300px;box-shadow:0 6px 20px rgba(0,0,0,.18);opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s}
 .grv-tip.on{opacity:1;transform:none}
+
+/* Base44 palette for the radar layer. */
+.grv .disc,.grv-run .disc,.grv-plate .disc{fill:#FCFCFF}
+.grv .ring,.grv .axis,.grv-plate .ring,.grv-plate .axis{stroke:#CFCFD8}
+.grv .ring.rim,.grv .ring.dash,.grv-plate .ring.rim,.grv-plate .ring.dash{stroke:#A9A9B7}
+.grv .rl,.grv-ss .rk,.grv-plate .ptick{fill:#55555F;stroke:#55555F}
+.grv .beam,.grv-conn circle,.grv-ss .fxring,.grv-ss .fxgoal,.grv-ss .fixt,.grv-method .mcore,.grv-method .mdot{stroke:#5D5FEF;fill:#5D5FEF}
+.grv .bd.client .b{fill:#5D5FEF!important}
+.grv .bd.client text,.grv-plate .prk.first,.grv-plate .pd text.prk.first,.grv-plate .pnl,.grv-run text.fa{fill:#5D5FEF}
+.grv-ss .fxghost{fill:#5D5FEF}
+.grv .bd .b,.grv-ss .ph .b,.grv-plate .pd .b,.grv-run .blip .b{stroke:#FCFCFF}
+.grv .bd text,.grv-ss .rlab,.grv-ss .rd .rn,.grv-plate .prk,.grv-plate .pd text.prk,.grv-run .blip text{fill:#111;stroke:#FCFCFF}
+.grv-plate .zone,.grv-plate .pband.b4{fill:#E7FFFF}
+.grv-plate .pband.b3{fill:#B9F8F8}
+.grv-plate .pband.b2{fill:#8CECEC}
+.grv-plate .pd.first .b{fill:#5D5FEF}
+.grv-plate .parc{stroke:#5D5FEF}
+.grv-plate .ptop{fill:#A9A9B7}
+.grv-method .disc{fill:#FCFCFF;stroke:#CFCFD8}
+.grv-method .mslice{fill:#E7FFFF;stroke:#FCFCFF}
+.grv-method .mnum{fill:#5D5FEF}
+.grv-method .munit{fill:#55555F}
+.grv-tip{background:#111;color:#FCFCFF;border:1px solid #FCFCFF;border-radius:0}
+#field-report{background-color:#6CFCFC!important}
+section:has(.ss-stage),.ss-stage,.ss-stage .lane-node{background-color:#A9F5F5!important}
 @media (prefers-reduced-motion:reduce){.grv .sweep{display:none}.grv .ping{display:none}}

@@ -121,11 +121,9 @@
   /* the plumes on the right take the radar's colours, so both show the same dots */
   function colorLane(){
     var svg=document.querySelector('.lane-trail svg');if(!svg||svg.dataset.grv)return;svg.dataset.grv=1;
-    var defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
-    defs.innerHTML=Object.keys(TAGCOL).map(function(k){return '<radialGradient id="grvLn-'+k+'"><stop offset="0" stop-color="'+TAGCOL[k]+'" stop-opacity=".9"/><stop offset=".5" stop-color="'+TAGCOL[k]+'" stop-opacity=".32"/><stop offset="1" stop-color="'+TAGCOL[k]+'" stop-opacity="0"/></radialGradient>'}).join('');
-    svg.appendChild(defs);
     var pl=svg.querySelectorAll('.lane-plume'),co=svg.querySelectorAll('.lane-core');
-    READS.forEach(function(r,i){if(pl[i])pl[i].style.fill='url(#grvLn-'+r[1]+')';if(co[i])co[i].style.fill=TAGCOL[r[1]];});
+    var SESSN={"diy":10,"your-listing":58,"yours":97,"publish-here":22,"request-mention":31,"standard":15,"rival":125,"unclassified":1,"news":1};
+    READS.forEach(function(r,i){if(pl[i]){pl[i].style.fill=TAGCOL[r[1]];pl[i].style.setProperty('r',(3+Math.sqrt(SESSN[r[1]])*.65)+'px');}if(co[i])co[i].style.fill=TAGCOL[r[1]];});
   }
   function syncReads(){
     var w=document.querySelector('.grv-ss');if(!w)return;var labels=document.querySelectorAll('.lane-label'),shown=0;

@@ -1,5 +1,14 @@
 # Agent Squared marketing site
 
+> **theme_change branch:** `site/` is now a static site whose page bodies are a port of the Base44 design
+> (https://agent-squared-hub.base44.app/), with the original nav bar kept: `index.html`, `study/`, `sample-report/`
+> and `method/`. All paths are relative, so it works from a domain root, a sub-folder, or opened straight from disk. The `/study` form posts to the same backend
+> as Base44, its `submitStudyRequest` function. Every page loads only
+> `site/assets/agent-squared.css` (Base44's compiled styles), `site/assets/site-header.css` (the kept nav) and
+> `site/assets/agent-squared.js` (radar reveal/parallax, View-as switch, FAQ accordion, mobile menu).
+> It no longer uses `site/next/`, `radar-layer/` or `tools/build.py`. Do not run `build.py` against it.
+> The rest of this README describes the previous build.
+
 The approved design of the Agent Squared landing page, with the redesigned radars, colours and type, plus everything a developer needs to rebuild it properly.
 
 Live preview (private, owner can share): https://claude.ai/artifact/LHFcu9KYE7m5qSKpdwWF6d

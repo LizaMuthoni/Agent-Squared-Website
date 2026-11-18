@@ -311,8 +311,19 @@
   }
 
   /* ------------------------------------------------------- study form */
-  /* Same backend as the Base44 site: its submitStudyRequest function. */
-  var STUDY_ENDPOINT = 'https://agent-squared-hub.base44.app/api/apps/6adf5536150bad5b6fba70b5/functions/submitStudyRequest';
+  /* Study requests go to the Agent Squared backend (the AI-Visibility-Dashboard repo's
+     POST /api/public/study-request), which stores them and emails the team. The backend
+     address comes from <meta name="agentsq-api" content="https://..."> when a page sets it,
+     otherwise the production app. When the site runs on localhost, ?api=<url> overrides it
+     so the form can be tested against a local backend. */
+  var DEFAULT_API = 'https://app.agentsq.co';
+  function apiBase() {
+    var local = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+    var param = local ? new URLSearchParams(window.location.search).get('api') : null;
+    var meta = document.querySelector('meta[name="agentsq-api"]');
+    var base = param || (meta && meta.getAttribute('content')) || DEFAULT_API;
+    return base.replace(/\/+$/, '');
+  }
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   var ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-8 w-8"><path d="M20 6 9 17l-5-5"></path></svg>';
   var ICON_SPIN = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader-circle h-4 w-4 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>';
@@ -379,14 +390,18 @@
 
       setSending(true);
       setFormError('');
-      fetch(STUDY_ENDPOINT, {
+      fetch(apiBase() + '/api/public/study-request', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-App-Id': '6adf5536150bad5b6fba70b5', 'Base44-Functions-Version': 'prod' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(v)
       }).then(function (res) {
         return res.json().catch(function () { return null; }).then(function (data) {
           if (data && data.ok) { showSent(v.email); return; }
           setSending(false);
+          // The backend names the fields it rejected; mark them like the browser-side checks do.
+          if (data && data.fields) {
+            Object.keys(data.fields).forEach(function (n) { if (field(n)) setError(n, data.fields[n]); });
+          }
           setFormError((data && data.error) || 'Something went wrong. Please try again.');
         });
       }).catch(function () {

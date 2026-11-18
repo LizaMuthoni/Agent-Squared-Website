@@ -2,8 +2,9 @@
 
 > **theme_change branch:** `site/` is now a static site whose page bodies are a port of the Base44 design
 > (https://agent-squared-hub.base44.app/), with the original nav bar kept: `index.html`, `study/`, `sample-report/`
-> and `method/`. All paths are relative, so it works from a domain root, a sub-folder, or opened straight from disk. The `/study` form posts to the same backend
-> as Base44, its `submitStudyRequest` function. Every page loads only
+> and `method/`. All paths are relative, so it works from a domain root, a sub-folder, or opened straight from disk. The `/study` form posts to the Agent Squared
+> backend's `POST /api/public/study-request` (AI-Visibility-Dashboard repo), at `https://app.agentsq.co` unless a page sets
+> `<meta name="agentsq-api" content="...">`; on localhost, `?api=http://localhost:3100` points it at a local backend. Every page loads only
 > `site/assets/agent-squared.css` (Base44's compiled styles), `site/assets/site-header.css` (the kept nav) and
 > `site/assets/agent-squared.js` (radar reveal/parallax, View-as switch, FAQ accordion, mobile menu).
 > It no longer uses `site/next/`, `radar-layer/` or `tools/build.py`. Do not run `build.py` against it.

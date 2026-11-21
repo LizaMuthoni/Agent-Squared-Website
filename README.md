@@ -2,7 +2,7 @@
 
 The public website for Agent Squared (agentsq.co): a static site whose pages are a port of the Base44 design (https://agent-squared-hub.base44.app/), with the original nav bar kept.
 
-The client app, sign-in and backend API live in the AI-Visibility-Dashboard repo (app.agentsq.co). This site calls that app for two things only: study requests and sign-in.
+The client app, sign-in and backend API live in the AI-Visibility-Dashboard repo (app.agentsq.co). This site calls that app for three things only: study requests, access requests and sign-in.
 
 ## What's here
 
@@ -12,13 +12,14 @@ site/
   method/                 How a study works
   sample-report/          The anonymized 9 Oct sample study ("Brand X")
   study/                  The category study request form
+  request-access/         The Request access form
   signin/                 Forwards to the app's sign-in page
   icon.svg
   assets/
     agent-squared.css     Base44's compiled Tailwind styles (generated, don't edit by hand)
     site-header.css       The nav bar, with the design-token colours
     agent-squared.js      Radar reveal and parallax, View-as switch, FAQ accordion, mobile menu,
-                          study form, app links
+                          study and request-access forms, app links
 docs/
   DESIGN-TOKENS.md        Colours, fonts and sizes
 ```
@@ -41,9 +42,10 @@ Then open http://localhost:8080.
   - On localhost, `?api=http://localhost:3100` points the page at a local app.
 - **The study form** (`study/`) posts to the app's `POST /api/public/study-request`. The request is stored and emailed to the team.
   - **Accepted sites:** the app only accepts requests from agentsq.co, www.agentsq.co and localhost, unless its `PUBLIC_SITE_ORIGINS` setting says otherwise.
+- **The Request access form** (`request-access/`) posts to the app's `POST /api/public/access-request`, with the same accepted sites. The request is stored and emailed to the team; accounts are still set up by the team. Every page links to it from the header, the mobile menu and the footer.
 - **Log in** links go straight to the app's `/signin`. The old `signin/` page forwards there and keeps a `?next=` path.
 
-**Release the app before the site.** The study form needs `/api/public/study-request`, which only exists on the app once its `staging` is released.
+**Release the app before the site.** The study form needs `/api/public/study-request` and the Request access form needs `/api/public/access-request`. Both only exist on the app once its `staging` is released, and the access form also needs the app's `access_requests` table.
 
 ## The sample report
 

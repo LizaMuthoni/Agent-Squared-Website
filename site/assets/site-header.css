@@ -1,4 +1,4 @@
-/* Site header: the original Agent Squared nav bar, kept as-is.
+/* Site header: the original nav bar, with Josh's menu (Nov 2026): Home · Sign in · [Request access].
    Values mirror the computed styles of the previous build (theme overrides included).
    Colours are the design tokens from docs/DESIGN-TOKENS.md. Rules that colour links are written
    as ".site-header .x" so they outrank ".site-header a{color:inherit}" below without !important. */
@@ -10,7 +10,7 @@
 .site-header__brand{display:flex;align-items:center;gap:8px}
 .site-header .site-header__home{display:flex;align-items:center;gap:8px;color:var(--sh-ink)}
 .site-header__mark{display:block;flex-shrink:0;width:22px;height:22px}
-.site-header__name{display:block;font-family:"Inter",ui-sans-serif,sans-serif;font-size:15px;font-weight:800;line-height:1;letter-spacing:0;text-transform:uppercase}
+.site-header__name{display:block;font-family:"Inter",ui-sans-serif,sans-serif;font-size:15px;font-weight:800;line-height:1;letter-spacing:0}
 .site-header .site-header__badge{display:inline-flex;align-items:center;border:1px solid var(--sh-ink);background:var(--sh-signal);padding:3px 6px;color:var(--sh-ink);font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:8px;font-weight:500;letter-spacing:.12em;line-height:1.2;white-space:nowrap;text-transform:uppercase;transition:background-color .15s,color .15s}
 .site-header .site-header__badge:hover,.site-header .site-header__badge:focus-visible{background:var(--sh-electric);color:var(--sh-on-electric)}
 .site-header__links,.site-header__actions{display:none;align-items:center}
@@ -38,9 +38,9 @@
 @media (min-width:768px){
   .site-header__bar{padding:0 40px}
 }
-/* Full nav only where it fits: the brand, five links and three actions (Log in, Request access, Get your study)
-   need about 1205px with 32px between the groups, so below 1220px the Menu button is used, as on phones. */
-@media (min-width:1220px){
+/* Full nav from 768px: the brand and the three items (Home, Sign in, Request access) fit a tablet width;
+   phones use the Menu button. */
+@media (min-width:768px){
   .site-header__links,.site-header__actions{display:flex}
   .site-header .site-header__toggle,.site-header .site-header__menu{display:none}
 }

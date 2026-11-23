@@ -1,6 +1,6 @@
-# Agent Squared marketing site
+# AgentSq marketing site
 
-The public website for Agent Squared (agentsq.co): a static site whose pages are a port of the Base44 design (https://agent-squared-hub.base44.app/), with the original nav bar kept.
+The public website for AgentSq (agentsq.co): a static site built on the Base44 design (https://agent-squared-hub.base44.app/). The home page, menu and footer follow Josh's website copy (Nov 2026): the menu is Home · Sign in · Request access, and the footer is AgentSq · Home · Sign in · Request access.
 
 The client app, sign-in and backend API live in the AI-Visibility-Dashboard repo (app.agentsq.co). This site calls that app for three things only: study requests, access requests and sign-in.
 
@@ -8,10 +8,10 @@ The client app, sign-in and backend API live in the AI-Visibility-Dashboard repo
 
 ```
 site/
-  index.html              Home
-  method/                 How a study works
-  sample-report/          The anonymized 9 Oct sample study ("Brand X")
-  study/                  The category study request form
+  index.html              Home (Josh's copy)
+  method/                 How a study works            } not linked from the menu or footer since Josh's copy;
+  sample-report/          The anonymized 9 Oct sample  } still reachable by URL until we decide whether to
+  study/                  The category study form      } remove them (J-02)
   request-access/         The Request access form
   signin/                 Forwards to the app's sign-in page
   icon.svg
@@ -49,7 +49,7 @@ Then open http://localhost:8080.
 
 ## The sample report
 
-The sample report and the home page's figures are a fixed, anonymized snapshot of the 9 October study: 148 sessions, with the brand shown as "Brand X". They're written into the HTML on purpose, so the published claims don't change when the study data does. The app's `GET /api/public/sample` serves live figures if that's ever wanted.
+The sample report's figures are a fixed, anonymized snapshot of the 9 October study: 148 sessions, with the brand shown as "Brand X". The home page's one figure ("considered in 71% of video API sessions, installed in none") comes from Josh's copy and is to be replaced with a measured install figure (J-11, J-12). They're written into the HTML on purpose, so the published claims don't change when the study data does. The app's `GET /api/public/sample` serves live figures if that's ever wanted.
 
 ## History
 

@@ -1,55 +1,63 @@
-# Agent Squared marketing site
+# AgentSq marketing site
 
-> **theme_change branch:** `site/` is now a static site whose page bodies are a port of the Base44 design
-> (https://agent-squared-hub.base44.app/), with the original nav bar kept: `index.html`, `study/`, `sample-report/`
-> and `method/`. All paths are relative, so it works from a domain root, a sub-folder, or opened straight from disk. The `/study` form posts to the same backend
-> as Base44, its `submitStudyRequest` function. Every page loads only
-> `site/assets/agent-squared.css` (Base44's compiled styles), `site/assets/site-header.css` (the kept nav) and
-> `site/assets/agent-squared.js` (radar reveal/parallax, View-as switch, FAQ accordion, mobile menu).
-> It no longer uses `site/next/`, `radar-layer/` or `tools/build.py`. Do not run `build.py` against it.
-> The rest of this README describes the previous build.
+The public website for AgentSq (agentsq.co): a static site built on the Base44 design (https://agent-squared-hub.base44.app/). The home page, menu and footer follow Josh's website copy (Nov 2026): the menu is Home · Sign in · Request access, and the footer is AgentSq · Home · Sign in · Request access.
 
-The approved design of the Agent Squared landing page, with the redesigned radars, colours and type, plus everything a developer needs to rebuild it properly.
+The client app, sign-in and backend API live in the AI-Visibility-Dashboard repo (app.agentsq.co). This site calls that app for three things only: study requests, access requests and sign-in.
 
-Live preview (private, owner can share): https://claude.ai/artifact/LHFcu9KYE7m5qSKpdwWF6d
-
-## 1. What is in this repo
+## What's here
 
 ```
-site/                 The approved page, as a static build. Open this to see the target.
-radar-layer/src/      Source of every radar and animation added on top of the original build.
-radar-layer/styles/   theme.css (fonts, colour overrides) and radars.css (all radar styling).
-data/study.json       The full data set the page renders: meta, topics, questions, 148 sessions,
-                      page-type sources, fix list, hero picks. This is the data contract.
-tools/build.py        Rebuilds site/ from radar-layer/ (reproduces the shipped files byte for byte).
-tools/recolor.py      The one-off colour remap applied to the original dark build.
-tools/base/           The untouched original JS chunk the radar layer is appended to.
-docs/HANDOFF.md       How it is built today, and the recommended way to build it for production.
-docs/DATA-CONTRACT.md The fields the backend has to produce, and which radar uses which field.
-docs/RADARS.md        Behaviour spec for each radar, section by section.
-docs/DESIGN-TOKENS.md Colours, fonts, sizes.
+site/
+  index.html              Home (Josh's copy)
+  method/                 How a study works            } not linked from the menu or footer since Josh's copy;
+  sample-report/          The anonymized 9 Oct sample  } still reachable by URL until we decide whether to
+  study/                  The category study form      } remove them (J-02)
+  request-access/         The Request access form
+  signin/                 Forwards to the app's sign-in page
+  icon.svg
+  og-image.png            The image shown when a link to the site is shared (1200x630)
+  robots.txt, sitemap.xml For search engines; the sitemap lists the pages in the menu
+  assets/
+    agent-squared.css     Base44's compiled Tailwind styles (generated, don't edit by hand)
+    site-header.css       The nav bar, with the design-token colours
+    agent-squared.js      Radar reveal and parallax, View-as switch, FAQ accordion, mobile menu,
+                          study and request-access forms, app links
+docs/
+  DESIGN-TOKENS.md        Colours, fonts and sizes
+  og-image.svg            Source of site/og-image.png
 ```
 
-## 2. Run it
+## Search and link previews
+
+Every page has a canonical URL, Open Graph tags and a Twitter card pointing at `https://agentsq.co`. These are the only absolute URLs in the site, so a staging copy shares links to production. `signin/` is marked `noindex` because it only forwards to the app. To change the share image, edit `docs/og-image.svg` and run `rsvg-convert -w 1200 -h 630 docs/og-image.svg -o site/og-image.png`.
+
+All paths are relative, so the site works from a domain root, a sub-folder, or opened straight from disk. There is no build step.
+
+## Run it
 
 ```bash
 cd site
-python3 -m http.server 8080      # any static server works
-# open http://localhost:8080
+python3 -m http.server 8080
 ```
 
-After editing anything in `radar-layer/`:
+Then open http://localhost:8080.
 
-```bash
-python3 tools/build.py
-```
+## Talking to the app
 
-The build applies Agent Squared branding to the page, React metadata payload, and client
-JavaScript bundles so the header keeps the same name after React loads.
+- **The app address** defaults to `https://app.agentsq.co`.
+  - A page can set its own with `<meta name="agentsq-api" content="https://...">`, for example for a staging app.
+  - On localhost, `?api=http://localhost:3100` points the page at a local app.
+- **The study form** (`study/`) posts to the app's `POST /api/public/study-request`. The request is stored and emailed to the team.
+  - **Accepted sites:** the app only accepts requests from agentsq.co, www.agentsq.co and localhost, unless its `PUBLIC_SITE_ORIGINS` setting says otherwise.
+- **The Request access form** (`request-access/`) posts to the app's `POST /api/public/access-request`, with the same accepted sites. The request is stored and emailed to the team; accounts are still set up by the team. Every page links to it from the header, the mobile menu and the footer.
+- **Log in** links go straight to the app's `/signin`. The old `signin/` page forwards there and keeps a `?next=` path.
 
-## 3. Important for the developer
+**Release the app before the site.** The study form needs `/api/public/study-request` and the Request access form needs `/api/public/access-request`. Both only exist on the app once its `staging` is released, and the access form also needs the app's `access_requests` table.
 
-`site/` is a **Next.js static export** (compiled output, not React source). The radars were added as a
-JavaScript layer appended to one compiled chunk plus CSS overrides, because only the export was available.
-It works and is the visual reference, but production should **port it into the real Next.js source** and
-feed it from an API instead of hard-coded data. Read `docs/HANDOFF.md` first.
+## The sample report
+
+The sample report's figures are a fixed, anonymized snapshot of the 9 October study: 148 sessions, with the brand shown as "Brand X". The home page's one figure ("considered in 71% of video API sessions, installed in none") comes from Josh's copy and is to be replaced with a measured install figure (J-11, J-12). They're written into the HTML on purpose, so the published claims don't change when the study data does. The app's `GET /api/public/sample` serves live figures if that's ever wanted.
+
+## History
+
+Earlier versions of this repo held a compiled Next.js export (`site/next/`), a radar layer appended to it (`radar-layer/`, `tools/build.py`) and its data file (`data/study.json`). The Base44 port replaced all of that. They were removed in T-22 and remain in git history.

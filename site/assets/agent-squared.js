@@ -1,5 +1,5 @@
 /*
- * Agent Squared landing page behaviour.
+ * AgentSq website behaviour.
  * The page body is a static port of the Base44 build (agent-squared-hub.base44.app);
  * this file reproduces its interactions and scroll transitions without React:
  *   - category radar: reveal on 20% visibility (sweep + staggered dot pop-in),
@@ -312,7 +312,7 @@
   }
 
   /* ------------------------------------------------------- study form */
-  /* The Agent Squared app (the AI-Visibility-Dashboard repo) serves both the backend API and
+  /* The AgentSq app (the AI-Visibility-Dashboard repo) serves both the backend API and
      client sign-in. Its address comes from <meta name="agentsq-api" content="https://..."> when a
      page sets it, otherwise the production app. When the site runs on localhost, ?api=<url>
      overrides it so the site can be tested against a local app. Study requests go to its

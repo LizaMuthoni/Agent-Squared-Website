@@ -15,6 +15,8 @@ site/
   request-access/         The Request access form
   signin/                 Forwards to the app's sign-in page
   icon.svg
+  og-image.png            The image shown when a link to the site is shared (1200x630)
+  robots.txt, sitemap.xml For search engines; the sitemap lists the pages in the menu
   assets/
     agent-squared.css     Base44's compiled Tailwind styles (generated, don't edit by hand)
     site-header.css       The nav bar, with the design-token colours
@@ -22,7 +24,12 @@ site/
                           study and request-access forms, app links
 docs/
   DESIGN-TOKENS.md        Colours, fonts and sizes
+  og-image.svg            Source of site/og-image.png
 ```
+
+## Search and link previews
+
+Every page has a canonical URL, Open Graph tags and a Twitter card pointing at `https://agentsq.co`. These are the only absolute URLs in the site, so a staging copy shares links to production. `signin/` is marked `noindex` because it only forwards to the app. To change the share image, edit `docs/og-image.svg` and run `rsvg-convert -w 1200 -h 630 docs/og-image.svg -o site/og-image.png`.
 
 All paths are relative, so the site works from a domain root, a sub-folder, or opened straight from disk. There is no build step.
 

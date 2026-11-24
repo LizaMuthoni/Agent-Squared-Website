@@ -434,58 +434,6 @@
     });
   }
 
-  /* ------------------------------------------------------- sign in */
-  /* Same backend as https://agentsq.co/signin: POST /api/auth/login {identifier, password}.
-     The session lives on agentsq.co and that endpoint sends no CORS headers, so sign-in completes
-     when this site is served from agentsq.co; from any other host the browser blocks the call
-     and the form shows an error instead of failing silently. */
-  var AUTH_ORIGIN = 'https://agentsq.co';
-  function initSignin() {
-    var form = document.querySelector('[data-signin-form]');
-    if (!form) return;
-    var id = form.elements.identifier, pw = form.elements.password;
-    var btn = form.querySelector('button[type="submit"]');
-    var err = form.querySelector('[data-signin-error]');
-    var busy = false;
-    var onAuthHost = /(^|\.)agentsq\.co$/.test(window.location.hostname);
-    var base = onAuthHost ? '' : AUTH_ORIGIN;
-
-    function sync() { btn.disabled = busy || !id.value.trim() || !pw.value; }
-    function showError(msg) { err.textContent = msg || ''; err.hidden = !msg; }
-    function setBusy(on) { busy = on; btn.textContent = on ? 'Signing in…' : 'Continue'; sync(); }
-    function destination(category) {
-      var next = new URLSearchParams(window.location.search).get('next');
-      // Only follow same-site paths ("/x", not "//host" or "https://host").
-      if (next && next.charAt(0) === '/' && next.charAt(1) !== '/' && next.charAt(1) !== '\\') return base + next;
-      return base + '/overview?category=' + encodeURIComponent(typeof category === 'string' ? category : 'cloudinary');
-    }
-
-    id.addEventListener('input', sync);
-    pw.addEventListener('input', sync);
-    sync();
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      if (btn.disabled) return;
-      showError('');
-      setBusy(true);
-      fetch(base + '/api/auth/login', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier: id.value, password: pw.value })
-      }).then(function (res) {
-        return res.json().catch(function () { return {}; }).then(function (data) {
-          if (!res.ok || (data && data.ok === false)) { setBusy(false); showError((data && data.error) || 'Something went wrong.'); return; }
-          window.location.href = destination(data && data.category);
-        });
-      }).catch(function () {
-        setBusy(false);
-        showError('We could not reach the sign-in service. Please try again.');
-      });
-    });
-  }
-
   /* Opened straight from disk (file://), folder links would show a directory listing; point them at index.html. */
   function fixFileLinks(scope) {
     if (window.location.protocol !== 'file:') return;
@@ -507,7 +455,6 @@
   initAccordion();
   initStudyForm();
   initAccessForm();
-  initSignin();
   initYear();
   fixFileLinks();
 })();

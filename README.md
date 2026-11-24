@@ -1,13 +1,23 @@
 # AgentSq marketing site
 
-> **theme_change branch:** `site/` is now a static site whose page bodies are a port of the Base44 design
-> (https://agent-squared-hub.base44.app/), with the original nav bar kept: `index.html`, `study/`, `sample-report/`
-> and `method/`. All paths are relative, so it works from a domain root, a sub-folder, or opened straight from disk. The `/study` form posts to the same backend
-> as Base44, its `submitStudyRequest` function. Every page loads only
-> `site/assets/agent-squared.css` (Base44's compiled styles), `site/assets/site-header.css` (the kept nav) and
-> `site/assets/agent-squared.js` (radar reveal/parallax, View-as switch, FAQ accordion, mobile menu).
-> It no longer uses `site/next/`, `radar-layer/` or `tools/build.py`. Do not run `build.py` against it.
-> The rest of this README describes the previous build.
+A static site served by a Cloudflare Worker, with one backend route for the Request access form.
+
+## What is in this repo
+
+```
+site/                  The site: index.html, study/, sample-report/, request-access/, method/ (not in the nav),
+                       assets/ (compiled CSS, nav CSS, agent-squared.js). Paths are relative, so it also works
+                       from a sub-folder or opened straight from disk.
+worker/index.js        Worker entry: serves site/ and routes /api/request-access.
+functions/api/         request-access.js: validates the form and emails the team through Resend.
+wrangler.jsonc         Worker config (name, entry point, assets).
+data/study.json        Example of the data a study report renders (see docs/DATA-CONTRACT.md).
+docs/                  HANDOFF.md, DATA-CONTRACT.md, RADARS.md, DESIGN-TOKENS.md.
+```
+
+There is no build step. Edit the files in `site/` directly; the nav and footer are repeated in each page. The
+`/study` form posts to the same backend as Base44, its `submitStudyRequest` function. Log in links go to
+`https://agentsq.co/signin`; the site has no sign-in page of its own.
 
 ## Request access
 
@@ -31,51 +41,11 @@ also works: it serves `site/` and picks up `functions/` on its own.
 The function refuses posts from other sites and gives bots that fill the hidden `trap` field a fake success. It has
 no rate limit of its own; add a Cloudflare rate-limiting rule on `/api/request-access` if spam gets through.
 
-To run the site with the backend locally, put the settings in `.dev.vars` (git-ignored) and run
-`npx wrangler dev --port 8788`. A plain static server serves the pages, but the form then has no
+To run the site with the backend locally, create `.dev.vars` (git-ignored) with `RESEND_API_KEY=...` and run
+`npx wrangler dev --port 8788`. Without `ACCESS_REQUEST_TO`, a test submission emails the whole team. A plain static
+server (`python -m http.server 8080 --directory site`) serves the pages, but the form then has no
 `/api/request-access` to post to.
 
-The approved design of the AgentSq landing page, with the redesigned radars, colours and type, plus everything a developer needs to rebuild it properly.
+Deploy with `npx wrangler deploy`, or push to `main` if Cloudflare builds from this repo.
 
-Live preview (private, owner can share): https://claude.ai/artifact/LHFcu9KYE7m5qSKpdwWF6d
-
-## 1. What is in this repo
-
-```
-site/                 The approved page, as a static build. Open this to see the target.
-radar-layer/src/      Source of every radar and animation added on top of the original build.
-radar-layer/styles/   theme.css (fonts, colour overrides) and radars.css (all radar styling).
-data/study.json       The full data set the page renders: meta, topics, questions, 148 sessions,
-                      page-type sources, fix list, hero picks. This is the data contract.
-tools/build.py        Rebuilds site/ from radar-layer/ (reproduces the shipped files byte for byte).
-tools/recolor.py      The one-off colour remap applied to the original dark build.
-tools/base/           The untouched original JS chunk the radar layer is appended to.
-docs/HANDOFF.md       How it is built today, and the recommended way to build it for production.
-docs/DATA-CONTRACT.md The fields the backend has to produce, and which radar uses which field.
-docs/RADARS.md        Behaviour spec for each radar, section by section.
-docs/DESIGN-TOKENS.md Colours, fonts, sizes.
-```
-
-## 2. Run it
-
-```bash
-cd site
-python3 -m http.server 8080      # any static server works
-# open http://localhost:8080
-```
-
-After editing anything in `radar-layer/`:
-
-```bash
-python3 tools/build.py
-```
-
-The build applies AgentSq branding to the page, React metadata payload, and client
-JavaScript bundles so the header keeps the same name after React loads.
-
-## 3. Important for the developer
-
-`site/` is a **Next.js static export** (compiled output, not React source). The radars were added as a
-JavaScript layer appended to one compiled chunk plus CSS overrides, because only the export was available.
-It works and is the visual reference, but production should **port it into the real Next.js source** and
-feed it from an API instead of hard-coded data. Read `docs/HANDOFF.md` first.
+See `docs/HANDOFF.md` for how the site works and what a production build would need.

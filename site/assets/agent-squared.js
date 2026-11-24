@@ -1,12 +1,11 @@
 /*
- * AgentSq website behaviour.
+ * Agent Squared landing page behaviour.
  * The page body is a static port of the Base44 build (agent-squared-hub.base44.app);
  * this file reproduces its interactions and scroll transitions without React:
  *   - category radar: reveal on 20% visibility (sweep + staggered dot pop-in),
  *     scroll parallax (+/-17px), ring hover/select, "View as" brand switch
  *   - FAQ accordion (single, collapsible, animated height)
  *   - header mobile menu (kept from the original site)
- *   - study and request-access forms, app links
  */
 (function () {
   'use strict';
@@ -312,29 +311,18 @@
   }
 
   /* ------------------------------------------------------- study form */
-  /* The AgentSq app (the AI-Visibility-Dashboard repo) serves both the backend API and
-     client sign-in. Its address comes from <meta name="agentsq-api" content="https://..."> when a
-     page sets it, otherwise the production app. When the site runs on localhost, ?api=<url>
-     overrides it so the site can be tested against a local app. Study requests go to its
-     POST /api/public/study-request, which stores them and emails the team. */
-  var DEFAULT_API = 'https://app.agentsq.co';
-  function apiBase() {
-    var local = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-    var param = local ? new URLSearchParams(window.location.search).get('api') : null;
-    var meta = document.querySelector('meta[name="agentsq-api"]');
-    var base = param || (meta && meta.getAttribute('content')) || DEFAULT_API;
-    return base.replace(/\/+$/, '');
-  }
+  /* Same backend as the Base44 site: its submitStudyRequest function. */
+  var STUDY_ENDPOINT = 'https://agent-squared-hub.base44.app/api/apps/6adf5536150bad5b6fba70b5/functions/submitStudyRequest';
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   var ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-8 w-8"><path d="M20 6 9 17l-5-5"></path></svg>';
   var ICON_SPIN = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader-circle h-4 w-4 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>';
   var BTN = 'inline-flex min-h-[48px] items-center justify-center gap-2 border-2 border-ink px-5 py-3 text-center font-mono text-[11px] uppercase leading-tight tracking-[0.14em] transition-transform duration-150 hover:-translate-y-[2px] active:translate-y-0';
 
-  /* Both public forms work the same way: check the required fields in the browser, post JSON to the
-     app, mark the fields the app rejects, and swap the form for a confirmation once it's accepted. */
-  function initForm(config) {
-    var form = document.querySelector(config.selector);
+  function initStudyForm() {
+    var form = document.querySelector('[data-study-form]');
     if (!form) return;
+    var REQUIRED = ['full_name', 'email', 'company', 'category'];
+    var FIELDS = ['full_name', 'email', 'company', 'website', 'category', 'competitors', 'questions'];
     var btn = form.querySelector('button[type="submit"]');
     var field = function (n) { return form.elements[n]; };
 
@@ -365,48 +353,40 @@
     }
     function setSending(on) {
       btn.disabled = on;
-      btn.innerHTML = on ? ICON_SPIN + 'Sending' : config.buttonLabel;
+      btn.innerHTML = on ? ICON_SPIN + 'Sending' : 'Request my category study';
     }
     function showSent(email) {
       var box = document.createElement('div');
       box.className = 'border-2 border-ink bg-signal p-8 fw-shadow';
       box.innerHTML = ICON_CHECK +
         '<h2 class="mt-5 text-2xl font-black tracking-[-0.02em]">Request received.</h2>' +
-        '<p class="mt-3 max-w-md text-sm leading-relaxed text-ink/80">' + config.sentText(esc(email)) + '</p>' +
-        '<div class="mt-7 flex flex-wrap gap-3">' + config.sentLinks.map(function (l, i) {
-          return '<a class="' + BTN + (i === 0 ? ' bg-paper text-ink' : ' bg-electric text-white') + ' fw-shadow" href="' + l.href + '">' + l.label + '</a>';
-        }).join('') + '</div>';
+        '<p class="mt-3 max-w-md text-sm leading-relaxed text-ink/80">We will reply to ' + esc(email) + ' with the question set and the study scope before we start asking.</p>' +
+        '<div class="mt-7 flex flex-wrap gap-3"><a class="' + BTN + ' bg-paper text-ink fw-shadow" href="../sample-report/">See a sample report</a><a class="' + BTN + ' bg-electric text-white fw-shadow" href="../method/">Read the method</a></div>';
       fixFileLinks(box);
       form.parentNode.replaceChild(box, form);
-      // The confirmation is shorter than the form, so bring it into view instead of leaving the footer on screen.
-      box.scrollIntoView({ block: 'center' });
     }
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (field('trap').value) return;
       var v = {};
-      config.fields.forEach(function (n) { v[n] = field(n).value; });
+      FIELDS.forEach(function (n) { v[n] = field(n).value; });
       var errors = {};
-      config.required.forEach(function (n) { if (!v[n].trim()) errors[n] = 'Required'; });
+      REQUIRED.forEach(function (n) { if (!v[n].trim()) errors[n] = 'Required'; });
       if (v.email.trim() && !EMAIL_RE.test(v.email.trim())) errors.email = 'Enter a valid email address';
-      config.checked.forEach(function (n) { setError(n, errors[n]); });
+      ['full_name', 'email', 'company', 'website', 'category'].forEach(function (n) { setError(n, errors[n]); });
       if (Object.keys(errors).length) return;
 
       setSending(true);
       setFormError('');
-      fetch(apiBase() + config.endpoint, {
+      fetch(STUDY_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-App-Id': '6adf5536150bad5b6fba70b5', 'Base44-Functions-Version': 'prod' },
         body: JSON.stringify(v)
       }).then(function (res) {
         return res.json().catch(function () { return null; }).then(function (data) {
           if (data && data.ok) { showSent(v.email); return; }
           setSending(false);
-          // The backend names the fields it rejected; mark them like the browser-side checks do.
-          if (data && data.fields) {
-            Object.keys(data.fields).forEach(function (n) { if (field(n)) setError(n, data.fields[n]); });
-          }
           setFormError((data && data.error) || 'Something went wrong. Please try again.');
         });
       }).catch(function () {
@@ -416,46 +396,56 @@
     });
   }
 
-  function initStudyForm() {
-    initForm({
-      selector: '[data-study-form]',
-      endpoint: '/api/public/study-request',
-      fields: ['full_name', 'email', 'company', 'website', 'category', 'competitors', 'questions'],
-      required: ['full_name', 'email', 'company', 'category'],
-      checked: ['full_name', 'email', 'company', 'website', 'category'],
-      buttonLabel: 'Request my category study',
-      sentText: function (email) { return 'We will reply to ' + email + ' with the question set and the study scope before we start asking.'; },
-      sentLinks: [{ href: '../sample-report/', label: 'See a sample report' }, { href: '../method/', label: 'Read the method' }]
-    });
-  }
-
-  /* Request access (request-access/) posts to the app's POST /api/public/access-request, which
-     stores the request and emails the team. Accounts are still issued by the team. */
-  function initAccessForm() {
-    initForm({
-      selector: '[data-access-form]',
-      endpoint: '/api/public/access-request',
-      fields: ['full_name', 'email', 'company', 'website', 'note'],
-      required: ['full_name', 'email', 'company'],
-      checked: ['full_name', 'email', 'company', 'website'],
-      buttonLabel: 'Request access',
-      sentText: function (email) { return 'We will reply to ' + email + ' with next steps. Once your workspace is set up, we send the details you sign in with.'; },
-      sentLinks: [{ href: '../', label: 'Back to home' }]
-    });
-  }
-
   /* ------------------------------------------------------- sign in */
-  /* Sign-in lives on the app (its session cookie belongs to the app's domain), so links marked
-     data-app-link point at the configured app, and the old /signin/ page forwards there,
-     keeping a same-site ?next= path so the app returns people where they were going. */
-  function initAppLinks() {
-    Array.prototype.forEach.call(document.querySelectorAll('[data-app-link]'), function (a) {
-      a.setAttribute('href', apiBase() + a.getAttribute('data-app-link'));
+  /* Same backend as https://agentsq.co/signin: POST /api/auth/login {identifier, password}.
+     The session lives on agentsq.co and that endpoint sends no CORS headers, so sign-in completes
+     when this site is served from agentsq.co; from any other host the browser blocks the call
+     and the form shows an error instead of failing silently. */
+  var AUTH_ORIGIN = 'https://agentsq.co';
+  function initSignin() {
+    var form = document.querySelector('[data-signin-form]');
+    if (!form) return;
+    var id = form.elements.identifier, pw = form.elements.password;
+    var btn = form.querySelector('button[type="submit"]');
+    var err = form.querySelector('[data-signin-error]');
+    var busy = false;
+    var onAuthHost = /(^|\.)agentsq\.co$/.test(window.location.hostname);
+    var base = onAuthHost ? '' : AUTH_ORIGIN;
+
+    function sync() { btn.disabled = busy || !id.value.trim() || !pw.value; }
+    function showError(msg) { err.textContent = msg || ''; err.hidden = !msg; }
+    function setBusy(on) { busy = on; btn.textContent = on ? 'Signing in…' : 'Continue'; sync(); }
+    function destination(category) {
+      var next = new URLSearchParams(window.location.search).get('next');
+      // Only follow same-site paths ("/x", not "//host" or "https://host").
+      if (next && next.charAt(0) === '/' && next.charAt(1) !== '/' && next.charAt(1) !== '\\') return base + next;
+      return base + '/overview?category=' + encodeURIComponent(typeof category === 'string' ? category : 'cloudinary');
+    }
+
+    id.addEventListener('input', sync);
+    pw.addEventListener('input', sync);
+    sync();
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (btn.disabled) return;
+      showError('');
+      setBusy(true);
+      fetch(base + '/api/auth/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: id.value, password: pw.value })
+      }).then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (data) {
+          if (!res.ok || (data && data.ok === false)) { setBusy(false); showError((data && data.error) || 'Something went wrong.'); return; }
+          window.location.href = destination(data && data.category);
+        });
+      }).catch(function () {
+        setBusy(false);
+        showError('We could not reach the sign-in service. Please try again.');
+      });
     });
-    if (!document.querySelector('[data-signin-redirect]')) return;
-    var next = new URLSearchParams(window.location.search).get('next');
-    var safe = next && next.charAt(0) === '/' && next.charAt(1) !== '/' && next.charAt(1) !== '\\';
-    window.location.replace(apiBase() + '/signin' + (safe ? '?next=' + encodeURIComponent(next) : ''));
   }
 
   /* Opened straight from disk (file://), folder links would show a directory listing; point them at index.html. */
@@ -478,8 +468,7 @@
   initRadarSection();
   initAccordion();
   initStudyForm();
-  initAccessForm();
-  initAppLinks();
+  initSignin();
   initYear();
   fixFileLinks();
 })();

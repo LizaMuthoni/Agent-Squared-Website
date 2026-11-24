@@ -57,24 +57,84 @@ function escapeHtml(value) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
+// Email clients ignore stylesheets and web fonts, so the branded layout is tables
+// with inline styles and system-font fallbacks. Colours match docs/DESIGN-TOKENS.md.
+const MAIL = {
+  ink: "#111111",
+  muted: "#55555F",
+  page: "#FCFCFF",
+  signal: "#6CFCFC",
+  electric: "#5D5FEF",
+  sans: "'Inter',Helvetica,Arial,sans-serif",
+  mono: "'IBM Plex Mono','Courier New',monospace",
+};
+
 /** The team email. Every value came from a public form, so all of it is escaped. */
 export function teamEmail(request) {
+  const { full_name, email, company, website, note } = request;
   const row = (label, value) =>
-    `<tr><td style="padding:2px 12px 2px 0;color:#666">${label}</td><td>${escapeHtml(value) || "-"}</td></tr>`;
+    `<tr><td style="padding:12px 0;border-top:1px solid ${MAIL.ink};font-family:${MAIL.mono};font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:${MAIL.muted};width:110px;vertical-align:top">${label}</td>` +
+    `<td style="padding:12px 0;border-top:1px solid ${MAIL.ink};font-family:${MAIL.sans};font-size:15px;color:${MAIL.ink};vertical-align:top">${escapeHtml(value) || "&ndash;"}</td></tr>`;
+  const replyHref = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent("Your AgentSq access request")}`;
+  const firstName = full_name.split(" ")[0];
+
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>New access request</title></head>
+<body style="margin:0;padding:0;background:${MAIL.page}">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(full_name)} from ${escapeHtml(company)} asked for access to AgentSq.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${MAIL.page}"><tr><td align="center" style="padding:32px 16px">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:#FFFFFF;border:2px solid ${MAIL.ink};box-shadow:6px 6px 0 ${MAIL.ink}">
+<tr><td style="padding:18px 28px;background:${MAIL.signal};border-bottom:2px solid ${MAIL.ink}">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+<td style="font-family:${MAIL.sans};font-size:20px;font-weight:800;letter-spacing:-0.4px;color:${MAIL.ink}">AgentSq</td>
+<td align="right" style="font-family:${MAIL.mono};font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:${MAIL.ink}">New access request</td>
+</tr></table></td></tr>
+<tr><td style="padding:32px 28px 8px">
+<p style="margin:0 0 8px;font-family:${MAIL.mono};font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${MAIL.muted}">From the website</p>
+<h1 style="margin:0;font-family:${MAIL.sans};font-size:28px;line-height:1.1;font-weight:800;letter-spacing:-0.6px;color:${MAIL.ink}">${escapeHtml(company)} asked for access.</h1>
+<div style="width:72px;height:6px;margin-top:16px;background:${MAIL.ink};line-height:6px;font-size:6px">&nbsp;</div>
+</td></tr>
+<tr><td style="padding:20px 28px 4px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-bottom:1px solid ${MAIL.ink}">
+${row("Name", full_name)}
+${row("Email", email)}
+${row("Company", company)}
+${row("Website", website)}
+</table></td></tr>
+<tr><td style="padding:20px 28px 4px">
+<p style="margin:0 0 8px;font-family:${MAIL.mono};font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:${MAIL.muted}">Note</p>
+<div style="padding:12px 16px;background:${MAIL.page};border-left:4px solid ${MAIL.electric};font-family:${MAIL.sans};font-size:15px;line-height:1.55;color:${MAIL.ink};white-space:pre-wrap">${escapeHtml(note) || "&ndash;"}</div>
+</td></tr>
+<tr><td style="padding:28px 28px 32px">
+<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:${MAIL.electric};border:2px solid ${MAIL.ink};box-shadow:4px 4px 0 ${MAIL.ink}">
+<a href="${escapeHtml(replyHref)}" style="display:inline-block;padding:13px 22px;font-family:${MAIL.mono};font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#FFFFFF;text-decoration:none">Reply to ${escapeHtml(firstName)}</a>
+</td></tr></table>
+<p style="margin:18px 0 0;font-family:${MAIL.sans};font-size:13px;line-height:1.5;color:${MAIL.muted}">Or just reply to this email. It goes straight to ${escapeHtml(email)}.</p>
+</td></tr>
+<tr><td style="padding:14px 28px;border-top:2px solid ${MAIL.ink};font-family:${MAIL.mono};font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:${MAIL.muted}">AgentSq &middot; a Frameworks product</td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+
+  const text = [
+    "New access request from the website",
+    "",
+    `Name:    ${full_name}`,
+    `Email:   ${email}`,
+    `Company: ${company}`,
+    `Website: ${website || "-"}`,
+    "",
+    "Note:",
+    note || "-",
+    "",
+    "Reply to this email to reach them.",
+  ].join("\n");
+
   return {
     // Subjects are plain text; strip line breaks so a value can't add headers.
-    subject: `Access request: ${request.company} (${request.full_name})`.replace(/[\r\n]+/g, " "),
-    html: [
-      "<p>Someone asked for access to AgentSq from the website.</p>",
-      "<table>",
-      row("Name", request.full_name),
-      row("Email", request.email),
-      row("Company", request.company),
-      row("Website", request.website),
-      "</table>",
-      `<p style="margin:16px 0 4px;color:#666">Note</p><div style="white-space:pre-wrap">${escapeHtml(request.note) || "-"}</div>`,
-      '<p style="margin-top:16px;color:#666">Reply to this email to reach them.</p>',
-    ].join("\n"),
+    subject: `Access request: ${company} (${full_name})`.replace(/[\r\n]+/g, " "),
+    html,
+    text,
   };
 }
 
@@ -107,7 +167,7 @@ export async function onRequestPost({ request, env }) {
     const res = await fetch(env.RESEND_API_URL || RESEND_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: env.RESEND_FROM || DEFAULT_FROM, to, subject: email.subject, html: email.html, reply_to: result.request.email }),
+      body: JSON.stringify({ from: env.RESEND_FROM || DEFAULT_FROM, to, subject: email.subject, html: email.html, text: email.text, reply_to: result.request.email }),
     });
     if (!res.ok) {
       console.error(`request-access: Resend answered ${res.status}: ${await res.text()}`);

@@ -6,7 +6,12 @@ import { onRequest as requestAccessAny, onRequestPost as requestAccessPost } fro
 
 export default {
   async fetch(request, env) {
-    const { pathname } = new URL(request.url);
+    const url = new URL(request.url);
+    if (url.hostname === "www.agentsquared.co") {
+      url.hostname = "agentsquared.co";
+      return Response.redirect(url.toString(), 301);
+    }
+    const { pathname } = url;
     if (pathname === "/api/request-access") {
       return request.method === "POST" ? requestAccessPost({ request, env }) : requestAccessAny();
     }

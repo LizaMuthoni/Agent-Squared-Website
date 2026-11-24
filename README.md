@@ -12,24 +12,27 @@
 ## Request access
 
 Every "Request access" button (header, mobile menu, home page, footer) opens `site/request-access/`. Its form posts
-to `/api/request-access`, which this repo handles itself: `functions/api/request-access.js` is a Cloudflare Pages
-Function that checks the form and emails the team through Resend. Nothing is sent to the AgentSq app, and
-nothing is stored; the request lives in the team's inbox.
+to `/api/request-access`, which this repo handles itself: `functions/api/request-access.js` checks the form and emails
+the team through Resend. [`worker/index.js`](worker/index.js) serves `site/` and routes `/api/*` to it, as configured
+in [`wrangler.jsonc`](wrangler.jsonc). Nothing is sent to the AgentSq app, and nothing is stored; the request lives in
+the team's inbox.
 
-Hosting it needs a **Cloudflare Pages** project on this repo (build command: none, output directory: `site`; the
-`functions/` folder is picked up automatically) with these settings under *Settings > Variables and secrets*:
+Hosting it needs a **Cloudflare Workers** project on this repo (build command: none, deploy command:
+`npx wrangler deploy`) with these settings under *Settings > Variables and secrets*. The Worker name in
+`wrangler.jsonc` (`agent-squared-website`) must match the project's name in Cloudflare. A Cloudflare Pages project
+also works: it serves `site/` and picks up `functions/` on its own.
 
 | Name | Required | What |
 |---|---|---|
 | `RESEND_API_KEY` | yes (secret) | Resend API key |
 | `RESEND_FROM` | no | Sender on a domain verified in Resend. Default `AgentSq <notifications@app.agentsq.co>` |
-| `ACCESS_REQUEST_TO` | no | Comma-separated recipients. Default josh@, elizabeth@ and robley@frameworks.social |
+| `ACCESS_REQUEST_TO` | no | Comma-separated recipients. Default robley@, elizabeth@, tal@ and josh@frameworks.social |
 
 The function refuses posts from other sites and gives bots that fill the hidden `trap` field a fake success. It has
 no rate limit of its own; add a Cloudflare rate-limiting rule on `/api/request-access` if spam gets through.
 
-To run the site with the function locally, put the settings in `.dev.vars` (git-ignored) and run
-`npx wrangler pages dev site --port 8788`. A plain static server serves the pages, but the form then has no
+To run the site with the backend locally, put the settings in `.dev.vars` (git-ignored) and run
+`npx wrangler dev --port 8788`. A plain static server serves the pages, but the form then has no
 `/api/request-access` to post to.
 
 The approved design of the AgentSq landing page, with the redesigned radars, colours and type, plus everything a developer needs to rebuild it properly.

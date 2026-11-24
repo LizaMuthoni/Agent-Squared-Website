@@ -13,7 +13,7 @@
 //   ACCESS_REQUEST_TO  comma-separated recipients (defaults to the team below)
 //   RESEND_API_URL     only for local tests against a mock
 
-const TEAM = ["josh@frameworks.social", "elizabeth@frameworks.social", "robley@frameworks.social"];
+const TEAM = ["robley@frameworks.social", "elizabeth@frameworks.social", "tal@frameworks.social", "josh@frameworks.social"];
 const DEFAULT_FROM = "AgentSq <notifications@app.agentsq.co>";
 const RESEND_URL = "https://api.resend.com/emails";
 

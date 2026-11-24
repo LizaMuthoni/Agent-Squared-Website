@@ -48,8 +48,8 @@ server (`python -m http.server 8080 --directory site`) serves the pages, but the
 
 Deploy with `npx wrangler deploy`, or push to `main` if Cloudflare builds from this repo.
 
-The site lives at `https://agentsquared.co`, attached as a custom domain on the Worker (Settings > Domains & Routes).
-`www.agentsquared.co` is also attached and the Worker redirects it to the main address. The workers.dev address is
+The site lives at `https://www.agentsquared.co`, attached as a custom domain on the Worker (Settings > Domains & Routes).
+`agentsquared.co` is also attached and the Worker redirects it to the www address. The workers.dev address is
 turned off (`workers_dev: false`), and `keep_vars: true` stops deploys from deleting variables set in the dashboard.
 Add `RESEND_API_KEY` as a **Secret**, not a plain variable.
 

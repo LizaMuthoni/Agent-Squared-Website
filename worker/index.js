@@ -7,8 +7,8 @@ import { onRequest as requestAccessAny, onRequestPost as requestAccessPost } fro
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.hostname === "www.agentsquared.co") {
-      url.hostname = "agentsquared.co";
+    if (url.hostname === "agentsquared.co") {
+      url.hostname = "www.agentsquared.co";
       return Response.redirect(url.toString(), 301);
     }
     const { pathname } = url;

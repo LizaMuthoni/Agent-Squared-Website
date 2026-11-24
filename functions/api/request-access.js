@@ -14,7 +14,7 @@
 //   RESEND_API_URL     only for local tests against a mock
 
 const TEAM = ["josh@frameworks.social", "elizabeth@frameworks.social", "robley@frameworks.social"];
-const DEFAULT_FROM = "Agent Squared <notifications@app.agentsq.co>";
+const DEFAULT_FROM = "AgentSq <notifications@app.agentsq.co>";
 const RESEND_URL = "https://api.resend.com/emails";
 
 // Generous for real requests, small enough that the form can't carry an
@@ -65,7 +65,7 @@ export function teamEmail(request) {
     // Subjects are plain text; strip line breaks so a value can't add headers.
     subject: `Access request: ${request.company} (${request.full_name})`.replace(/[\r\n]+/g, " "),
     html: [
-      "<p>Someone asked for access to Agent Squared from the website.</p>",
+      "<p>Someone asked for access to AgentSq from the website.</p>",
       "<table>",
       row("Name", request.full_name),
       row("Email", request.email),

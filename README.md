@@ -1,4 +1,4 @@
-# Agent Squared marketing site
+# AgentSq marketing site
 
 > **theme_change branch:** `site/` is now a static site whose page bodies are a port of the Base44 design
 > (https://agent-squared-hub.base44.app/), with the original nav bar kept: `index.html`, `study/`, `sample-report/`
@@ -13,7 +13,7 @@
 
 Every "Request access" button (header, mobile menu, home page, footer) opens `site/request-access/`. Its form posts
 to `/api/request-access`, which this repo handles itself: `functions/api/request-access.js` is a Cloudflare Pages
-Function that checks the form and emails the team through Resend. Nothing is sent to the Agent Squared app, and
+Function that checks the form and emails the team through Resend. Nothing is sent to the AgentSq app, and
 nothing is stored; the request lives in the team's inbox.
 
 Hosting it needs a **Cloudflare Pages** project on this repo (build command: none, output directory: `site`; the
@@ -22,7 +22,7 @@ Hosting it needs a **Cloudflare Pages** project on this repo (build command: non
 | Name | Required | What |
 |---|---|---|
 | `RESEND_API_KEY` | yes (secret) | Resend API key |
-| `RESEND_FROM` | no | Sender on a domain verified in Resend. Default `Agent Squared <notifications@app.agentsq.co>` |
+| `RESEND_FROM` | no | Sender on a domain verified in Resend. Default `AgentSq <notifications@app.agentsq.co>` |
 | `ACCESS_REQUEST_TO` | no | Comma-separated recipients. Default josh@, elizabeth@ and robley@frameworks.social |
 
 The function refuses posts from other sites and gives bots that fill the hidden `trap` field a fake success. It has
@@ -32,7 +32,7 @@ To run the site with the function locally, put the settings in `.dev.vars` (git-
 `npx wrangler pages dev site --port 8788`. A plain static server serves the pages, but the form then has no
 `/api/request-access` to post to.
 
-The approved design of the Agent Squared landing page, with the redesigned radars, colours and type, plus everything a developer needs to rebuild it properly.
+The approved design of the AgentSq landing page, with the redesigned radars, colours and type, plus everything a developer needs to rebuild it properly.
 
 Live preview (private, owner can share): https://claude.ai/artifact/LHFcu9KYE7m5qSKpdwWF6d
 
@@ -67,7 +67,7 @@ After editing anything in `radar-layer/`:
 python3 tools/build.py
 ```
 
-The build applies Agent Squared branding to the page, React metadata payload, and client
+The build applies AgentSq branding to the page, React metadata payload, and client
 JavaScript bundles so the header keeps the same name after React loads.
 
 ## 3. Important for the developer

@@ -1,5 +1,5 @@
 /*
- * Agent Squared landing page behaviour.
+ * AgentSq landing page behaviour.
  * The page body is a static port of the Base44 build (agent-squared-hub.base44.app);
  * this file reproduces its interactions and scroll transitions without React:
  *   - category radar: reveal on 20% visibility (sweep + staggered dot pop-in),

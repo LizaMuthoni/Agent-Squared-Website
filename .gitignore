@@ -1,0 +1,4 @@
+# Local Cloudflare Pages runs (wrangler pages dev)
+.dev.vars
+.wrangler/
+node_modules/

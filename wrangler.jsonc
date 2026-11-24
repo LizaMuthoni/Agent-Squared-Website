@@ -3,6 +3,7 @@
   "name": "agent-squared-website",
   "main": "worker/index.js",
   "compatibility_date": "2026-11-01",
+  "keep_vars": true,
   "assets": {
     "directory": "./site",
     "binding": "ASSETS",

@@ -361,7 +361,7 @@
       box.innerHTML = ICON_CHECK +
         '<h2 class="mt-5 text-2xl font-black tracking-[-0.02em]">Request received.</h2>' +
         '<p class="mt-3 max-w-md text-sm leading-relaxed text-ink/80">We will reply to ' + esc(email) + ' with the question set and the study scope before we start asking.</p>' +
-        '<div class="mt-7 flex flex-wrap gap-3"><a class="' + BTN + ' bg-paper text-ink fw-shadow" href="../sample-report/">See a sample report</a><a class="' + BTN + ' bg-electric text-white fw-shadow" href="../method/">Read the method</a></div>';
+        '<div class="mt-7 flex flex-wrap gap-3"><a class="' + BTN + ' bg-paper text-ink fw-shadow" href="../sample-report/">See a sample report</a></div>';
       fixFileLinks(box);
       form.parentNode.replaceChild(box, form);
     }

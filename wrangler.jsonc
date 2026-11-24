@@ -5,6 +5,22 @@
   "compatibility_date": "2026-11-01",
   "keep_vars": true,
   "workers_dev": false,
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true
+    },
+    "issue_detection": {
+      "enabled": true
+    }
+  },
   "assets": {
     "directory": "./site",
     "binding": "ASSETS",

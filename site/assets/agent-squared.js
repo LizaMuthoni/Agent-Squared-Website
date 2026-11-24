@@ -318,11 +318,11 @@
   var ICON_SPIN = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader-circle h-4 w-4 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>';
   var BTN = 'inline-flex min-h-[48px] items-center justify-center gap-2 border-2 border-ink px-5 py-3 text-center font-mono text-[11px] uppercase leading-tight tracking-[0.14em] transition-transform duration-150 hover:-translate-y-[2px] active:translate-y-0';
 
-  function initStudyForm() {
-    var form = document.querySelector('[data-study-form]');
+  /* Both forms work the same way: check the required fields in the browser, post JSON, mark the
+     fields the server rejects, and swap the form for a confirmation once it's accepted. */
+  function initForm(config) {
+    var form = document.querySelector(config.selector);
     if (!form) return;
-    var REQUIRED = ['full_name', 'email', 'company', 'category'];
-    var FIELDS = ['full_name', 'email', 'company', 'website', 'category', 'competitors', 'questions'];
     var btn = form.querySelector('button[type="submit"]');
     var field = function (n) { return form.elements[n]; };
 
@@ -353,46 +353,84 @@
     }
     function setSending(on) {
       btn.disabled = on;
-      btn.innerHTML = on ? ICON_SPIN + 'Sending' : 'Request my category study';
+      btn.innerHTML = on ? ICON_SPIN + 'Sending' : config.buttonLabel;
     }
     function showSent(email) {
       var box = document.createElement('div');
       box.className = 'border-2 border-ink bg-signal p-8 fw-shadow';
       box.innerHTML = ICON_CHECK +
         '<h2 class="mt-5 text-2xl font-black tracking-[-0.02em]">Request received.</h2>' +
-        '<p class="mt-3 max-w-md text-sm leading-relaxed text-ink/80">We will reply to ' + esc(email) + ' with the question set and the study scope before we start asking.</p>' +
-        '<div class="mt-7 flex flex-wrap gap-3"><a class="' + BTN + ' bg-paper text-ink fw-shadow" href="../sample-report/">See a sample report</a></div>';
+        '<p class="mt-3 max-w-md text-sm leading-relaxed text-ink/80">' + config.sentText(esc(email)) + '</p>' +
+        '<div class="mt-7 flex flex-wrap gap-3">' + config.sentLinks.map(function (l) {
+          return '<a class="' + BTN + ' bg-paper text-ink fw-shadow" href="' + l.href + '">' + l.label + '</a>';
+        }).join('') + '</div>';
       fixFileLinks(box);
       form.parentNode.replaceChild(box, form);
+      // The confirmation is shorter than the form; jump to it rather than leave the footer on screen.
+      box.scrollIntoView({ block: 'center', behavior: 'instant' });
     }
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (field('trap').value) return;
       var v = {};
-      FIELDS.forEach(function (n) { v[n] = field(n).value; });
+      config.fields.forEach(function (n) { v[n] = field(n).value; });
       var errors = {};
-      REQUIRED.forEach(function (n) { if (!v[n].trim()) errors[n] = 'Required'; });
+      config.required.forEach(function (n) { if (!v[n].trim()) errors[n] = 'Required'; });
       if (v.email.trim() && !EMAIL_RE.test(v.email.trim())) errors.email = 'Enter a valid email address';
-      ['full_name', 'email', 'company', 'website', 'category'].forEach(function (n) { setError(n, errors[n]); });
+      config.checked.forEach(function (n) { setError(n, errors[n]); });
       if (Object.keys(errors).length) return;
 
       setSending(true);
       setFormError('');
-      fetch(STUDY_ENDPOINT, {
+      fetch(config.endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-App-Id': '6adf5536150bad5b6fba70b5', 'Base44-Functions-Version': 'prod' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, config.headers || {}),
         body: JSON.stringify(v)
       }).then(function (res) {
         return res.json().catch(function () { return null; }).then(function (data) {
           if (data && data.ok) { showSent(v.email); return; }
           setSending(false);
+          if (data && data.fields) {
+            Object.keys(data.fields).forEach(function (n) { if (field(n)) setError(n, data.fields[n]); });
+          }
           setFormError((data && data.error) || 'Something went wrong. Please try again.');
         });
       }).catch(function () {
         setSending(false);
         setFormError('We could not send your request. Please try again.');
       });
+    });
+  }
+
+  function initStudyForm() {
+    initForm({
+      selector: '[data-study-form]',
+      endpoint: STUDY_ENDPOINT,
+      headers: { 'X-App-Id': '6adf5536150bad5b6fba70b5', 'Base44-Functions-Version': 'prod' },
+      fields: ['full_name', 'email', 'company', 'website', 'category', 'competitors', 'questions'],
+      required: ['full_name', 'email', 'company', 'category'],
+      checked: ['full_name', 'email', 'company', 'website', 'category'],
+      buttonLabel: 'Request my category study',
+      sentText: function (email) { return 'We will reply to ' + email + ' with the question set and the study scope before we start asking.'; },
+      sentLinks: [{ href: '../sample-report/', label: 'See a sample report' }]
+    });
+  }
+
+  /* Request access (request-access/) is handled by this site itself: functions/api/request-access.js,
+     a Cloudflare Pages Function, checks the form and emails the team. Nothing goes to the app. */
+  var ACCESS_ENDPOINT = '/api/request-access';
+
+  function initAccessForm() {
+    initForm({
+      selector: '[data-access-form]',
+      endpoint: ACCESS_ENDPOINT,
+      fields: ['full_name', 'email', 'company', 'website', 'note'],
+      required: ['full_name', 'email', 'company'],
+      checked: ['full_name', 'email', 'company', 'website'],
+      buttonLabel: 'Request access',
+      sentText: function (email) { return 'We will reply to ' + email + ' with next steps. Once your workspace is set up, we send the details you sign in with.'; },
+      sentLinks: [{ href: '../', label: 'Back to home' }]
     });
   }
 
@@ -468,6 +506,7 @@
   initRadarSection();
   initAccordion();
   initStudyForm();
+  initAccessForm();
   initSignin();
   initYear();
   fixFileLinks();
